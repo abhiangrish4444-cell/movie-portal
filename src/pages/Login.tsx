@@ -1,25 +1,22 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { getUsers, saveUsers, setCurrentUser } from "../utils/localStorage";
+import { getUsers, setCurrentUser } from "../utils/localStorage";
 
-function registerUser(newUser) {
+function loginUser(email, password) {
   const users = getUsers();
-  const existing = users.find((u) => u.email === newUser.email);
-  if (existing) {
-    throw new Error("User already exists!");
+  const user = users.find((u) => u.email === email && u.password === password);
+  if (!user) {
+    throw new Error("Invalid credentials!");
   }
-  users.push(newUser);
-  saveUsers(users);
-  setCurrentUser(newUser);
+  setCurrentUser(user);
 }
 
 
-export default function Register() {
-  const { register, socialLogin } = useAuth();
+export default function Login() {
+  const { login, socialLogin } = useAuth();
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,7 +24,7 @@ export default function Register() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      register(name, email, password);
+      login(email, password);
       navigate("/");
     } catch (err: any) {
       setError(err.message);
@@ -37,19 +34,11 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-blue-500">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Create Account</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
 
         {error && <p className="text-red-600 mb-4 text-sm text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300"
-          />
           <input
             type="email"
             placeholder="Email Address"
@@ -71,14 +60,14 @@ export default function Register() {
             type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold"
           >
-            Register
+            Login
           </button>
         </form>
 
         <p className="text-center mt-4 text-sm">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
-            Login
+          Don’t have an account?{" "}
+          <a href="/register" className="text-blue-600 hover:underline">
+            Register
           </a>
         </p>
 
