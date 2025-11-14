@@ -1,17 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { getUsers, setCurrentUser } from "../utils/localStorage";
-
-function loginUser(email, password) {
-  const users = getUsers();
-  const user = users.find((u) => u.email === email && u.password === password);
-  if (!user) {
-    throw new Error("Invalid credentials!");
-  }
-  setCurrentUser(user);
-}
-
 
 export default function Login() {
   const { login, socialLogin } = useAuth();
@@ -21,13 +10,15 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
     try {
-      login(email, password);
-      navigate("/");
+      await login(email, password);  // IMPORTANT: await login
+      navigate("/home");                 // redirect after success
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Invalid credentials");
     }
   };
 
@@ -47,6 +38,7 @@ export default function Login() {
             required
             className="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-blue-300"
           />
+
           <input
             type="password"
             placeholder="Password"
@@ -66,15 +58,12 @@ export default function Login() {
 
         <p className="text-center mt-4 text-sm">
           Don’t have an account?{" "}
-          <a href="/register" className="text-blue-600 hover:underline">
-            Register
-          </a>
+          <a href="/register" className="text-blue-600 hover:underline">Register</a>
         </p>
 
         <div className="mt-6">
-          <p className="text-center text-sm mb-3 text-gray-500">
-            Or continue with
-          </p>
+          <p className="text-center text-sm mb-3 text-gray-500">Or continue with</p>
+
           <div className="flex justify-center gap-3">
             <button
               onClick={() => {
@@ -85,6 +74,7 @@ export default function Login() {
             >
               Google
             </button>
+
             <button
               onClick={() => {
                 socialLogin("facebook");
@@ -94,6 +84,7 @@ export default function Login() {
             >
               Facebook
             </button>
+
             <button
               onClick={() => {
                 socialLogin("apple");
@@ -105,6 +96,7 @@ export default function Login() {
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
